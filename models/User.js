@@ -13,7 +13,7 @@ module.exports = (sequalize) => {
         },
     });
 
-    user.associate = (models) => {
+    User.associate = (models) => {
         User.hasMany(models.Post, {
             foreignKey: 'userId',
             onDelete: 'CASCADE',
