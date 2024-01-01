@@ -1,0 +1,15 @@
+{
+    "development": {
+        "username": "root",
+        "password": "Mgt95543",
+        "database": "tech_blog_db",
+        "host": "localhost",
+        "dialect": "mysql"
+    },
+    "test": {
+
+    },
+    "production": {
+        
+    }
+}
