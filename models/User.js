@@ -12,4 +12,17 @@ module.exports = (sequalize) => {
             allowNull: false,
         },
     });
-}
+
+    user.associate = (models) => {
+        User.hasMany(models.Post, {
+            foreignKey: 'userId',
+            onDelete: 'CASCADE',
+        });
+        User.hasMany(models.Comment, {
+            foreignKey: 'userId',
+            onDelete: 'CASCADE',
+        });
+    };
+
+    return User;
+};
