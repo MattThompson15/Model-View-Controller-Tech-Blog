@@ -7,9 +7,17 @@
         "dialect": "mysql"
     },
     "test": {
-
+        "username": "root",
+        "password": "Mgt95543",
+        "database": "tech_blog_db",
+        "host": "localhost",
+        "dialect": "mysql"
     },
     "production": {
-        
+        "username": "root",
+        "password": "Mgt95543",
+        "database": "tech_blog_db",
+        "host": "localhost",
+        "dialect": "mysql"
     }
 }
