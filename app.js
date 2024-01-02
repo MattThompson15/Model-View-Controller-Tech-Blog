@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const { Sequelize } = require('sequelize');
 const authController = require('./controllers/authController');
+const postController = require('./controllers/postController');
+const userController = require('./controllers/userController');
 const app = express();
 
 const UserModel = require('./models/User');
@@ -9,35 +11,42 @@ const PostModel = require('./models/Post');
 const CommentModel = require('./models/Comment');
 
 
-const sequelize = new Sequelize({
+app.use(
+    session({
+        secret: 'YGVbJ@/[QS@[9l|',
+        resave: false,
+        saveUninitialized: false,
+    })
+);
+
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
     dialect: 'mysql',
-    dialectOptions: {
-        charset: 'utf8mb4',
-    },
 });
+
+async function testDbConnection() {
+    try {
+        await sequelize.authenticate();
+        console.log('Database connection has been established successfully');
+    }   catch (error) {
+        console.error('Unable to cennect to the database:', error);
+    }
+}
+
+testDbConnection();
 
 const User = UserModel(sequelize);
 const Post = PostModel(sequelize);
 const Comment = CommentModel(sequelize);
 
-sequelize.sync({ force: false}).then(() => {
-    console.log('Database synced');
-}).catch((err) => {
-    console.error('Error syncing database:', err);
-});
+User.associate({ Post, Comment });
+Post.associate({ User, Comment });
+Comment.associate({ User, Post });
 
-app.use(session({
-    secret: 'YGVbJ@/[QS@[9l|',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        maxAge: 3600000,
-    },
-}));
+const exphbs = require('express-handlebars');
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
 
-app.use('/auth', authController);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});

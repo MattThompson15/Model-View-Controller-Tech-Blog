@@ -14,6 +14,10 @@ module.exports = (sequelize) => {
         },
     });
 
+    User.beforeCreate(async (user) => {
+        user.password = await bcrypt.hash(user.password, 10);
+    });
+
     User.associate = (models) => {
         User.hasMany(models.Post, {
             foreignKey: 'userId',
