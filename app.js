@@ -1,5 +1,7 @@
 const express = require('express');
+const session = require('express-session');
 const { Sequelize } = require('sequelize');
+const authController = require('./controllers/authController');
 const app = express();
 
 const UserModel = require('./models/User');
@@ -23,6 +25,17 @@ sequelize.sync({ force: false}).then(() => {
 }).catch((err) => {
     console.error('Error syncing database:', err);
 });
+
+app.use(session({
+    secret: 'YGVbJ@/[QS@[9l|',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 3600000,
+    },
+}));
+
+app.use('/auth', authController);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

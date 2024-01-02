@@ -1,7 +1,8 @@
 const { DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 
-module.exports = (sequalize) => {
-    const User = sequalize.define('User', {
+module.exports = (sequelize) => {
+    const User = sequelize.define('User', {
         username: {
             type: DataTypes.STRING,
             allowNull: false,
