@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const { Sequelize } = require('sequelize');
@@ -19,8 +20,8 @@ app.use(
     })
 );
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
+const sequelize = new Sequelize(process.env.tech_blog_db, process.env.root, process.env.Mgt95543, {
+    host: process.env.localhost,
     dialect: 'mysql',
 });
 
@@ -50,3 +51,15 @@ app.set('view engine', 'handlebars');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static('public'));
+
+app.use('/auth', authController);
+
+app.use('/posts', postController);
+
+app.use('/users', userController);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on http:localhost:${PORT}`);
+});
