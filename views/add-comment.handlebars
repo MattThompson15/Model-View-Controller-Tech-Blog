@@ -1,0 +1,11 @@
+{{#extend "layouts/main"}}
+    {{content "body"}}
+        <h2>Add Comments</h2>
+        <form action="/comments/create" method="post">
+            <label for="content">Comment:</label>
+            <textarea id="content" name="content" rows="4" required></textarea>
+            <input type="hidden" name="postId" value="{{post.id}}">
+            <button type="submit">Add Comment</button>
+        </form>
+    {{/content}}
+{{/extend}}
