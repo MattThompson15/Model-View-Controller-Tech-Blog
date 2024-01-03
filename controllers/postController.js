@@ -90,3 +90,28 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error'});
     }
   });
+
+  router.post('/:id/delete', async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const post = await Post.findByPk(postId);
+
+        if (!post) {
+            res.status(404).json({ error: 'Post not found' });
+            return;
+        }
+
+        if (req.session.user.id !== post.userId) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
+
+        await post.destroy();
+        res.redirect('/');
+    }   catch (error) {
+        console.error('Error deleting post', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  module.exports = router;

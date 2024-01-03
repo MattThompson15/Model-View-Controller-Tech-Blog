@@ -4,6 +4,7 @@
         <ul>
             <li><a href="/">Home</a></li>
             {{#if session.user}}
+                <li><a href="/posts/add">Add New Post</a></li>
                 <li><a href="/auth/logout">Logout</a></li>
             {{else}}
                 <li><a href="/auth/login">Login</a></li>
