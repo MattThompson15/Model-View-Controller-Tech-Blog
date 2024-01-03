@@ -2,25 +2,13 @@ const express = require('express');
 const { Post, User, Comment } = require('../models');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-    try {
-        const posts = await Post.findAll({
-            include: [{ model: User, attributes: ['username'] }],
-        });
-        res.render('all-posts', { posts });
-    }   catch (error) {
-        console.error('Error fetching posts:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-router.get('/post/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const postId = req.params.id;
         const post = await Post.findByPk(postId, {
             include: [
-                { model: User, attributes: ['username'] },
-                { model: Comment, include: [{ model: User, attributes: ['username'] }] },
+                {model: User, attributes: ['username'] },
+                {model: Comment, include: [{ model: User, attributes: ['username'] }] },
             ],
         });
 
@@ -29,35 +17,32 @@ router.get('/post/:id', async (req, res) => {
             return;
         }
 
-        res.render('single-post', { post });
+        res.render('post', { post });
     }   catch (error) {
         console.error('Error fetching post details:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-});
+  });
 
-router.get('/create', (req, res) => {
-    if (!req.session.user) {
-        res.redirect('/auth/login');
-        return;
-    }
-    res.render('create-post');
-});
+  router.get('/add', (req, res) => {
+    res.render('add-post');
+  });
 
-router.post('/create', async (req, res) => {
+  router.post('/create', async (req, res) => {
     try {
         const { title, content } = req.body;
         const userId = req.session.user.id;
 
-        const post = await Post.create({ title, content, userId });
-        res.redirect(`/posts/post/${post.id}`);
-    } catch (error) {
-        console.error('Error creating a new post:', error);
+        const newPost = await Post.create({ title, content, userId });
+        
+        res.redirect(`/posts/${newPost.id}`)
+    }   catch (error) {
+        console.error('Error creating post:', error);
         res.status(500).json({ error: 'Internal server error'});
     }
-});
+  });
 
-router.get('/edit/:id', async (req, res) => {
+  router.get('/:id/edit', async (req, res) => {
     try {
         const postId = req.params.id;
         const post = await Post.findByPk(postId);
@@ -67,37 +52,41 @@ router.get('/edit/:id', async (req, res) => {
             return;
         }
 
-        res.render('edit-post', { post });
-    }   catch(error) {
-        console.error('Error fetching post details for editing', error);
-        res.status(500).json({ error: 'Internal server error'});
-    };
-})
+        if (req.session.user.id !== post.userId) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
 
-router.post('/edit/:id', async (req, res) => {
-    try {
-        const postId = req.params.id;
-        const { title, content } = req.body;
-
-        await Post.update({ title, content }, { where: { id: postId} });
-        res.redirect(`/posts/post/${postId}`);
+        res.renders('edit-post', { post });
     }   catch (error) {
-        console.error('Error updating the post:', error);
+        console.error('Error fetching post for editing:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-});
+  });
 
-router.post('/delete/:id', async (req, res) => {
+  router.post('/:id/edit', async (req, res) => {
     try {
         const postId = req.params.id;
+        const {title, content } = req.body;
+        const post = await Post.findByPk(postId);
 
-        await Post.destroy({ where: { id: postId } });
-        res.redirect('/posts');
+        if (!post) {
+            res.status(404).json({ error: 'Post not found' });
+            return;
+        }
+
+        if (req.session.user.id !== post.userId) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
+
+        post.title = title;
+        post.content = content;
+        await post.save();
+
+        res.redirect(`/posts/${postId}`);
     }   catch (error) {
-        console.error('Error deleting the post', error);
+        console.error('Error editing post:'. error);
         res.status(500).json({ error: 'Internal server error'});
     }
-});
-
-module.exports = router;
-
+  });
