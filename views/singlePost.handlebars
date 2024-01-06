@@ -1,0 +1,30 @@
+{{!-- Extend the main layout --}}
+{{#extend "main"}}
+
+{{#content "body"}}
+<div class="single-post">
+    <h2>{{post.title}}</h2>
+    <p>{{post.content}}</p>
+    <p>Posted on {{post.createdAt}}</p>
+
+    {{#if user}}
+    <form action="/posts/{{post.id}}/comment" method="post">
+    <textarea name="commentContent" placeholder="Leave a comment"></textarea>
+    <button ty[e="submit">Submit Comment</button>
+    </form>
+    {{else}}
+    <p><a href="/login">Log in</a> to leave a comment</p>
+    {{/if}}
+
+    <h3>Comments</h3>
+    {{#each post.comments as |comment|}}
+    <div class="comment">
+        <p>{{comment.content}}</p>
+        <p>Commented by {{comment.user.username}} on {{comment.createdAt}}</p>
+    </div>
+    {{/each}}
+</div>
+{{/content}}
+
+{{/extend}}
+```
