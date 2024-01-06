@@ -1,0 +1,23 @@
+{{!-- Extend the main layout --}}
+{{#extend "main"}}
+
+{{#content "body"}}
+<h1>Dashboard</h1>
+
+{{#if user}}
+    {{#each user.posts as |post|}}
+    <div class="post">
+        <h2>{{post.title}}</h2>
+        <p>{{post.content}}</p>
+        <button>Delete</button>
+    </div>
+    {{/each}}
+    <button>Create New Post</button>
+{{else}}
+    <p>Please log in to see you dashboard</p>
+{{/if}}
+
+{{/content}}
+
+{{/extend}}
+```

@@ -1,53 +1,51 @@
-const express = require('express');
+const { User } = require('../models');
 const bcrypt = require('bcrypt');
-const { User } = require('../models/User.js');
-const router = express.Router();
 
-router.get('/register', (req, res) => {
-    res.render('register');
-});
-
-router.post('/register', async (req, res) => {
+exports.register = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = await User.create({ username, password: hashedPassword });
-
-        req.session.user = { id: newUser.id, username: newUser.username, };
-
-        res.redirect('/');
-    }   catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        const { username, email, password } = req.body;
+        const newUser = await User.create({
+            username,
+            email,
+            password,
+        });
+        res.status(201).json({
+            status: 'success',
+            data: {
+                user: newUser,
+            },
+        });
+    } catch (err) {
+        res.status(400).json({
+            status: 'fail',
+            message: err.message,
+        });
     }
-});
+};
 
-router.get('/login', (req, res) => {
-    res.render('login');
-});
-
-router.post('/login', async (req, res) => {
+exports.login = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ where: {username } });
-
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            res.status(401).json({ error: 'Invalid username or password' });
-            return;
+        const { email, password } = req.body;
+        // 1) Check if email and password exist
+        if (!email || !password) {
+            throw new Error('Please provide email and password!');
         }
-
-        req.session.user = { id: user.id, username: user.username };
-        res.redirect('/');
-    } catch (error) {
-        console.error('Error logging in user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        // 2) Check if user exists && password is correct
+        const user = await User.findOne({ where: { email } });
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            throw new Error('Incorrect email or password');
+        }
+        // 3) If everything ok, send token to client
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user,
+            },
+        });
+    } catch (err) {
+        res.status(400).json({
+            status: 'fail',
+            message: err.message,
+        });
     }
-});
-
-router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
-module.exports = router;
+}
