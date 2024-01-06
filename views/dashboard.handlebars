@@ -5,14 +5,15 @@
 <h1>Dashboard</h1>
 
 {{#if user}}
+    <button><a href="/posts/new">Create New Post</a></button>
     {{#each user.posts as |post|}}
     <div class="post">
         <h2>{{post.title}}</h2>
         <p>{{post.content}}</p>
-        <button>Delete</button>
+        <button><a href="/posts/edit/{{post.id}}">Edit</a></button>
+        <button><a href="/posts/delete/{{post.id}}">Delete</a></button>
     </div>
     {{/each}}
-    <button>Create New Post</button>
 {{else}}
     <p>Please log in to see you dashboard</p>
 {{/if}}

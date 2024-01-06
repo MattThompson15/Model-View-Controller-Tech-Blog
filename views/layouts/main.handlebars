@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Tech Blog</title>
-    <link rel="stylesheet" href="/css/app.css">
+    <title>My Blog App</title>
+    <link rel="stylesheet" type="'text/css" href="/css/style.css">
+    <script src="/js/main.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        {{{body}}}
-    </div>
+    <header class="header">
+        <nav>
+            <!-- Navigation links here -->
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <!-- Add more logic for showing links based on user login status -->
+        </nav>
+    </header>
+
+    {{{body}}}
+
+    <footer class="footer">
+        <p>&copy; 2024 My Blog App</p>
+    </footer>
 </body>
+
 </html>
