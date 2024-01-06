@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const { User } = require('../models/User.js');
 const router = express.Router();
 
 router.get('/register', (req, res) => {
@@ -14,10 +14,7 @@ router.post('/register', async (req, res) => {
 
         const newUser = await User.create({ username, password: hashedPassword });
 
-        req.session.user = {
-            id: newUser.id,
-            username: newUser.username,
-        };
+        req.session.user = { id: newUser.id, username: newUser.username, };
 
         res.redirect('/');
     }   catch (error) {
@@ -35,31 +32,22 @@ router.post('/login', async (req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({ where: {username } });
 
-        if (user && (await bcrypt.compare(password, user.password))) {
-            req.session.user = {
-                id: user.id,
-                username: user.username,
-            };
-
-            res.redirect('/');
-        }   else {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             res.status(401).json({ error: 'Invalid username or password' });
+            return;
         }
-    }   catch (error) {
-        console.error('Error logging in:', error);
+
+        req.session.user = { id: user.id, username: user.username };
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error logging in user:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-router.post('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if(err) {
-            console.error('Error destroying session', err);
-            res.status(500).json({ error: 'Internal server error'});
-        } else {
-          res.redirect('/');
-        }
-    });
+router.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
 module.exports = router;

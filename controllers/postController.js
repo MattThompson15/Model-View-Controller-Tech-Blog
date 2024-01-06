@@ -42,6 +42,21 @@ router.get('/:id', async (req, res) => {
     }
   });
 
+  router.post('/:id/comments/create', async (req, res) => {
+    try {
+        const { content} = req.body;
+        const postId = req.params.id;
+        const userId = req.session.user.id;
+
+        const newComment = await Comment.create({ content, userId, postId});
+
+        res.redirect(`/posts/${postId}`);
+    }   catch (error) {
+        console.error('Error creating comment:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   router.get('/:id/edit', async (req, res) => {
     try {
         const postId = req.params.id;
@@ -57,7 +72,7 @@ router.get('/:id', async (req, res) => {
             return;
         }
 
-        res.renders('edit-post', { post });
+        res.render('edit-post', { post });
     }   catch (error) {
         console.error('Error fetching post for editing:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -107,6 +122,7 @@ router.get('/:id', async (req, res) => {
         }
 
         await post.destroy();
+        
         res.redirect('/');
     }   catch (error) {
         console.error('Error deleting post', error);
